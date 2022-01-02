@@ -2075,7 +2075,7 @@ In this example, there are 7 measurements that are larger than the previous meas
     val bufferedSource = Source.fromFile(filename)
 
     val result =
-      bufferedSource.getLines.toList.view.
+      bufferedSource.getLines.
         map(_.toInt).
         sliding(2).
         foldLeft(0)((acc, pair) => {
