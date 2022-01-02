@@ -76,15 +76,18 @@ Calculate the horizontal position and depth you would have after following the p
       file.getLines.
         map(_.split(" ")).
         foldLeft((0, 0))((acc, pair) => {
+          val horizontalPosition = acc._1
+          val depth = acc._2
+
           val direction = pair(0)
           val value = pair(1).toInt
 
           println(s"$direction $value")
 
           direction match {
-            case "forward" => (acc._1 + value, acc._2)
-            case "down" => (acc._1, acc._2 + value)
-            case "up" => (acc._1, acc._2 - value)
+            case "forward" => (horizontalPosition + value, depth)
+            case "down" => (horizontalPosition, depth + value)
+            case "up" => (horizontalPosition, depth - value)
           }
         })
 
@@ -131,28 +134,34 @@ Consider sums of a three-measurement sliding window. *How many sums are larger t
 #+begin_src scala
   import scala.io.Source
 
-  def slidingWindowSumIncreaseCount (filename: String) = {
+  def computePosition(filename: String) = {
     val file = Source.fromFile(filename)
 
-    val result =
-      file.getLines.toList.
-        view.
-        map(_.toInt).
-        sliding(3).
-        map(_.sum).
-        sliding(2).
-        foldLeft(0)((acc, pair) => {
-          if (pair(0) < pair(1))
-            acc + 1
-          else
-            acc
+    val (horizontalPosition, depth, _aim) =
+      file.getLines.
+        map(_.split(" ")).
+        foldLeft((0, 0, 0))((acc, pair) => {
+          val horizontalPosition = acc._1
+          val depth = acc._2
+          val aim = acc._3
+
+          val direction = pair(0)
+          val value = pair(1).toInt
+
+          println(s"$direction $value")
+
+          direction match {
+            case "forward" => (horizontalPosition + value, depth + aim * value, aim)
+            case "down" => (horizontalPosition, depth, aim + value)
+            case "up" => (horizontalPosition, depth, aim - value)
+          }
         })
 
     file.close
-    result
+    horizontalPosition * depth
   }
 
-  println(slidingWindowSumIncreaseCount("input.txt"))
+  println(computePosition("input.txt"))
 #+end_src
 
 
