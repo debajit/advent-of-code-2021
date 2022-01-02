@@ -1,0 +1,196 @@
+#+TITLE:Day 2: Dive!
+
+https://adventofcode.com/2021/day/2
+
+* Part 1
+
+** Problem
+
+It seems like the submarine can take a series of commands like forward 1, down 2, or up 3:
+
+- forward X increases the horizontal position by X units.
+- down X increases the depth by X units.
+- up X decreases the depth by X units.
+
+#+begin_src text
+  forward 5
+  down 5
+  forward 8
+  up 3
+  down 8
+  forward 2
+#+end_src
+
+After following these instructions, you would have a horizontal position of 15 and a depth of 10. (Multiplying these together produces 150.)
+
+Calculate the horizontal position and depth you would have after following the planned course. *What do you get if you multiply your final horizontal position by your final depth?*
+
+
+** Solutions
+
+*** C++
+
+#+begin_src C++ :includes '(<vector> <numeric> <iostream> <map>) :namespaces std :flags -std=c++11 :results verbatim
+  #include <iostream>
+  #include <fstream>
+  using namespace std;
+
+  int computePosition (const string& filename) {
+      int horizontalPosition = 0;
+      int depth = 0;
+
+      ifstream file(filename);
+      string direction;
+      int value;
+
+      while (file >> direction >> value) {
+          if (direction == "forward")
+              horizontalPosition += value;
+          else if (direction == "down")
+              depth += value;
+          else if (direction == "up")
+              depth -= value;
+      }
+
+      return horizontalPosition * depth;
+  }
+
+  int main() {
+      cout << increaseCount("input.txt") << "\n";
+  }
+#+end_src
+
+#+RESULTS:
+: 1882980
+
+
+*** Scala
+
+#+begin_src scala
+  import scala.io.Source
+
+  def computePosition(filename: String) = {
+    val file = Source.fromFile(filename)
+
+    val (horizontalPosition, depth) =
+      file.getLines.
+        map(_.split(" ")).
+        foldLeft((0, 0))((acc, pair) => {
+          val direction = pair(0)
+          val value = pair(1).toInt
+
+          println(s"$direction $value")
+
+          direction match {
+            case "forward" => (acc._1 + value, acc._2)
+            case "down" => (acc._1, acc._2 + value)
+            case "up" => (acc._1, acc._2 - value)
+          }
+        })
+
+    file.close
+    horizontalPosition * depth
+  }
+
+  println(computePosition("input.txt"))
+#+end_src
+
+*** Elixir
+
+TODO
+
+
+* Part 2
+
+** Problem
+
+Consider sums of a three-measurement sliding window. Again considering the above example:
+
+#+begin_src text
+  199  A
+  200  A B
+  208  A B C
+  210    B C D
+  200  E   C D
+  207  E F   D
+  240  E F G
+  269    F G H
+  260      G H
+  263        H
+#+end_src
+
+Your goal now is to count the *number of times the sum of measurements in this sliding window increases from the previous sum*. So, compare A with B, then compare B with C, then C with D, and so on. Stop when there aren't enough measurements left to create a new three-measurement sum.
+
+Consider sums of a three-measurement sliding window. *How many sums are larger than the previous sum?*
+
+
+** Solutions
+
+*** Scala
+
+#+begin_src scala
+  import scala.io.Source
+
+  def slidingWindowSumIncreaseCount (filename: String) = {
+    val file = Source.fromFile(filename)
+
+    val result =
+      file.getLines.toList.
+        view.
+        map(_.toInt).
+        sliding(3).
+        map(_.sum).
+        sliding(2).
+        foldLeft(0)((acc, pair) => {
+          if (pair(0) < pair(1))
+            acc + 1
+          else
+            acc
+        })
+
+    file.close
+    result
+  }
+
+  println(slidingWindowSumIncreaseCount("input.txt"))
+#+end_src
+
+
+*** C++
+
+#+begin_src C++ :includes '(<vector> <numeric> <iostream> <map>) :namespaces std :flags -std=c++11 :results verbatim
+  #include <iostream>
+  #include <fstream>
+  using namespace std;
+
+  int increaseCount (const string& filename) {
+      int increases = 0;
+      ifstream file(filename);
+
+      int a, b, c, d;
+      file >> a >> b >> c >> d;
+      int previousWindowDepth = a + b + c;
+
+      int curWindowDepth;
+      while (file >> d) {
+          curWindowDepth = previousWindowDepth - a + d;
+          cout << previousWindowDepth << " " << curWindowDepth << " ";
+
+          if (curWindowDepth > previousWindowDepth) {
+              ++increases;
+          }
+
+          cout << "\n";
+          previousWindowDepth = curWindowDepth;
+      }
+
+      return increases;
+  }
+
+  int main() {
+      cout << increaseCount("example.txt") << "\n";
+  }
+#+end_src
+
+#+RESULTS:
+: 0
