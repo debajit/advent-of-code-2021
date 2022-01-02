@@ -140,6 +140,45 @@ Now, the above example does something different:
 
 ** Solutions
 
+*** C++
+
+#+begin_src C++ :includes '(<vector> <numeric> <iostream> <map>) :namespaces std :flags -std=c++11 :results verbatim
+  #include <iostream>
+  #include <fstream>
+  using namespace std;
+
+  int computePosition (const string& filename) {
+      int horizontalPosition = 0;
+      int depth = 0;
+      int aim = 0;
+
+      ifstream file(filename);
+      string direction;
+      int value;
+
+      while (file >> direction >> value) {
+          if (direction == "forward") {
+              horizontalPosition += value;
+              depth += aim * value;
+          }
+          else if (direction == "down")
+              aim += value;
+          else if (direction == "up")
+              aim -= value;
+      }
+
+      return horizontalPosition * depth;
+  }
+
+  int main() {
+      cout << computePosition("input.txt") << "\n";
+  }
+#+end_src
+
+#+RESULTS:
+: 1971232560
+
+
 *** Scala
 
 #+begin_src scala
@@ -174,43 +213,3 @@ Now, the above example does something different:
 
   println(computePosition("input.txt"))
 #+end_src
-
-
-*** C++
-
-#+begin_src C++ :includes '(<vector> <numeric> <iostream> <map>) :namespaces std :flags -std=c++11 :results verbatim
-  #include <iostream>
-  #include <fstream>
-  using namespace std;
-
-  int increaseCount (const string& filename) {
-      int increases = 0;
-      ifstream file(filename);
-
-      int a, b, c, d;
-      file >> a >> b >> c >> d;
-      int previousWindowDepth = a + b + c;
-
-      int curWindowDepth;
-      while (file >> d) {
-          curWindowDepth = previousWindowDepth - a + d;
-          cout << previousWindowDepth << " " << curWindowDepth << " ";
-
-          if (curWindowDepth > previousWindowDepth) {
-              ++increases;
-          }
-
-          cout << "\n";
-          previousWindowDepth = curWindowDepth;
-      }
-
-      return increases;
-  }
-
-  int main() {
-      cout << increaseCount("example.txt") << "\n";
-  }
-#+end_src
-
-#+RESULTS:
-: 0
